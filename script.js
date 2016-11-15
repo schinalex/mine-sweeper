@@ -35,9 +35,32 @@ const generateField = ({rows, columns, bombs}) => {
   const allCells = getAllCellsCoords(rows, columns)
   const bombCells = chooseRandomItems(allCells, bombs)
   bombCells.forEach(cell => {
-    matrix[cell.y][cell.x].content = 'X'
+    matrix[cell.y][cell.x].content = 'x'
   })
-  return matrix
+  const countBombs = (matrix, x, y) => {
+    let count = 0
+    for (let i = y - 1; i <= y + 1; i++) {
+      for (let j = x - 1; j <= x + 1; j++) {
+        if (i >= 0 && i < matrix.length && j >= 0 && j < matrix[i].length && matrix[i][j].content === 'x') {
+          count += 1
+        }
+      }
+    }
+    return count
+  }
+  const markField = (field) => {
+    const matrix = JSON.parse(JSON.stringify(field)) // make a copy of the field
+    for (let i = 0; i < matrix.length; i++) {
+      for (let j = 0; j < matrix[i].length; j++) {
+        if (matrix[i][j].content !== 'x') {
+          matrix[i][j].content = countBombs(matrix, j, i) || matrix[i][j].content
+        }
+      }
+    }
+    return matrix
+  }
+  const field = markField(matrix)
+  return field
 }
 const settings = {
   rows: 10,
