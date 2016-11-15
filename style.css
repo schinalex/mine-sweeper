@@ -1,0 +1,17 @@
+.center {
+  display: flex;
+  flex-flow: column;
+}
+.row {
+  display: flex;
+}
+
+.box {
+  width: 30px;
+  height: 30px;
+  margin: 1px;
+  background-color: #515151;
+}
+.open {
+  background-color: #adadad;
+}

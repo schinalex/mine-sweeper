@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.min.js"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div class="row" v-for="(row, y) in matrix">
+      <div class="box" :class="{ open: cell.isOpen }" @click="show(x, y)" v-for="(cell, x) in row">
+        <span v-show="cell.isOpen">{{ cell.content }}</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
