@@ -1,5 +1,15 @@
 /* global Vue alert */
 
+const checkAround = (matrix, x, y, fn) => {
+  for (let i = y - 1; i <= y + 1; i++) {
+    for (let j = x - 1; j <= x + 1; j++) {
+      if (i >= 0 && i < matrix.length && j >= 0 && j < matrix[i].length) {
+        fn(matrix, j, i)
+      }
+    }
+  }
+}
+
 const generateField = ({rows, columns, bombs}) => {
   const get2DArray = ({rows, columns, getDefaultValue}) => { // default value must be a function
     return Array(rows).fill().map(
@@ -36,18 +46,6 @@ const generateField = ({rows, columns, bombs}) => {
     return items
   }
 
-  const countBombs = (matrix, x, y) => {
-    let count = 0
-    for (let i = y - 1; i <= y + 1; i++) {
-      for (let j = x - 1; j <= x + 1; j++) {
-        if (i >= 0 && i < matrix.length && j >= 0 && j < matrix[i].length && matrix[i][j].content === 'x') {
-          count += 1
-        }
-      }
-    }
-    return count
-  }
-
   const matrix = get2DArray({
     rows,
     columns,
@@ -64,7 +62,14 @@ const generateField = ({rows, columns, bombs}) => {
     for (let i = 0; i < matrix.length; i++) {
       for (let j = 0; j < matrix[i].length; j++) {
         if (matrix[i][j].content !== 'x') {
-          matrix[i][j].content = countBombs(matrix, j, i) || matrix[i][j].content
+          let count = 0
+          const countBombs = (matrix, x, y) => {
+            if (matrix[y][x].content === 'x') {
+              count += 1
+            }
+          }
+          checkAround(matrix, j, i, countBombs)
+          matrix[i][j].content = count || matrix[i][j].content
         }
       }
     }
@@ -74,24 +79,32 @@ const generateField = ({rows, columns, bombs}) => {
   return field
 }
 
+const open = (matrix, x, y) => matrix[y][x].isOpen = true
+
 const settings = {
-  rows: 10,
-  columns: 10,
-  bombs: 10
+  rows: 16,
+  columns: 16,
+  bombs: 40
 }
 const matrix = generateField(settings)
 
-const vm = new Vue({
+const game = new Vue({
   el: '#app',
   data: {
     matrix
   },
   methods: {
-    show (x, y) {
-      this.matrix[y][x].isFlagged = false
-      this.matrix[y][x].isOpen = true
-      if (this.matrix[y][x].content === 'x') {
-        this.gameOver()
+    show (matrix, x, y) {
+      const cell = matrix[y][x]
+      if (!cell.isOpen && !cell.isFlagged) {
+        open(matrix, x, y)
+        if (!cell.content) {
+          cell.content = ' '
+          checkAround(matrix, x, y, this.show)
+        }
+        if (cell.content === 'x') {
+          this.gameOver()
+        }
       }
     },
     displayMatrix () {
@@ -120,4 +133,4 @@ const vm = new Vue({
   }
 })
 
-console.log(vm)
+console.log(game)

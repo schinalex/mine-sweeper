@@ -15,7 +15,7 @@
       <div class="box center"
         v-for="(cell, x) in row"
         :class="{ open: cell.isOpen }"
-        @click="show(x, y)"
+        @click="show(matrix, x, y)"
         @contextmenu.prevent="flag(x, y)"
       >
         <span v-show="cell.isOpen">
