@@ -1,4 +1,4 @@
-/* global Vue */
+/* global Vue alert */
 
 const generateField = ({rows, columns, bombs}) => {
   const get2DArray = ({rows, columns, getDefaultValue}) => { // default value must be a function
@@ -6,9 +6,15 @@ const generateField = ({rows, columns, bombs}) => {
       row => Array(columns).fill().map(getDefaultValue)
     )
   }
+
   const getCellObject = (content) => {
-    return {content, isOpen: false}
+    return {
+      content,
+      isOpen: false,
+      isFlagged: false
+    }
   }
+
   const getAllCellsCoords = (rows, columns) => {
     const coordinates = []
     for (let i = 0; i < rows; i++) {
@@ -18,12 +24,9 @@ const generateField = ({rows, columns, bombs}) => {
     }
     return coordinates
   }
-  const matrix = get2DArray({
-    rows,
-    columns,
-    getDefaultValue: getCellObject.bind(null, '')
-  })
+
   const getRandomNumber = range => Math.floor(Math.random() * range)
+
   const chooseRandomItems = (array, nrOfItems) => {
     const items = []
     for (let i = 0; i < nrOfItems; i++) {
@@ -32,11 +35,7 @@ const generateField = ({rows, columns, bombs}) => {
     }
     return items
   }
-  const allCells = getAllCellsCoords(rows, columns)
-  const bombCells = chooseRandomItems(allCells, bombs)
-  bombCells.forEach(cell => {
-    matrix[cell.y][cell.x].content = 'x'
-  })
+
   const countBombs = (matrix, x, y) => {
     let count = 0
     for (let i = y - 1; i <= y + 1; i++) {
@@ -48,6 +47,18 @@ const generateField = ({rows, columns, bombs}) => {
     }
     return count
   }
+
+  const matrix = get2DArray({
+    rows,
+    columns,
+    getDefaultValue: getCellObject.bind(null, '')
+  })
+
+  const allCells = getAllCellsCoords(rows, columns)
+  const bombCells = chooseRandomItems(allCells, bombs)
+
+  bombCells.forEach(cell => matrix[cell.y][cell.x].content = 'x')
+
   const markField = (field) => {
     const matrix = JSON.parse(JSON.stringify(field)) // make a copy of the field
     for (let i = 0; i < matrix.length; i++) {
@@ -62,6 +73,7 @@ const generateField = ({rows, columns, bombs}) => {
   const field = markField(matrix)
   return field
 }
+
 const settings = {
   rows: 10,
   columns: 10,
@@ -76,7 +88,11 @@ const vm = new Vue({
   },
   methods: {
     show (x, y) {
+      this.matrix[y][x].isFlagged = false
       this.matrix[y][x].isOpen = true
+      if (this.matrix[y][x].content === 'x') {
+        this.gameOver()
+      }
     },
     displayMatrix () {
       const matrix = this.matrix
@@ -87,6 +103,19 @@ const vm = new Vue({
         }
         console.log(cells)
       }
+    },
+    gameOver () {
+      console.log('Game Over!')
+      setTimeout(() => alert('Game Over!'), 100)
+      setTimeout(this.restart, 101)
+    },
+    flag (x, y) {
+      if (!this.matrix[y][x].isOpen) {
+        this.matrix[y][x].isFlagged = !this.matrix[y][x].isFlagged
+      }
+    },
+    restart () {
+      this.matrix = generateField(settings)
     }
   }
 })

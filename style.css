@@ -1,11 +1,21 @@
+#app {
+  height: 100vh;
+}
 .center {
   display: flex;
   flex-flow: column;
+  justify-content: center;
+  align-items: center;
 }
 .row {
   display: flex;
 }
-
+.red {
+  color: #9f0000;
+}
+.blue {
+  color: #003366;
+}
 .box {
   width: 30px;
   height: 30px;
